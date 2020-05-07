@@ -43,18 +43,17 @@ public class Solution2 {
                 // int nbCharsToBeRemoved = Math.max(nbExcessChars, countLongTailCorrections(s, nbinsertedExcessChars));
                 // int nbTotalRepetitions = countRepetitions(s.substring(0, MAX_PWD_SIZE + nbinsertedExcessChars));
 
-                int totalMissingTypes = countMissingTypes(s);
-                nbMissingTypes = Math.min(nbMissingTypes, totalMissingTypes);
+                int nbGlobalMissingTypes = countMissingTypes(s);
                 int changes = nbRepetitions + nbExcessChars + nbMissingTypes;
-                int nbRepetitionsRemaining = nbRepetitions;
 
-                /** consider excess chars of a type that is missing, taken */
+                /** group corrections for: repetition & excess char & missing type */
+                changes -= Math.min(nbRepetitions, Math.min(nbExcessChars, nbMissingTypes - nbGlobalMissingTypes));
 
-                /** group corrections that fix a missing type and a repetition */
+                /** group corrections for: repetition & missing type */
                 changes -= Math.min(nbMissingTypes, nbRepetitions);
-                nbRepetitionsRemaining -= Math.min(nbMissingTypes, nbRepetitions);
+                int nbRepetitionsRemaining = nbRepetitions - Math.min(nbMissingTypes, nbRepetitions);
 
-                /** group corrections that fix an excess char and a repetition */
+                /** group corrections for: repetition & excess char */
                 changes -= Math.min(nbExcessChars, nbRepetitionsRemaining);
                 int nbFixedExcessChars = Math.min(nbExcessChars, nbRepetitionsRemaining);
 
@@ -77,16 +76,15 @@ public class Solution2 {
                  * 
                  * The number of additional changes to correct these new repetitions
                  * is limited to the number of
-                 * "grouped corrections that fix an excess char and a repetition"
-                 * That is:
-                 * Math.min(nbExcessChars, nbRepetitionsRemaining)
+                 * "group corrections for: repetition & excess char"
+                 * That is: nbFixedExcessChars
                  */
                 int addedRepetitions = countTrailingRepetitions(s.substring(0, s.length() - nbFixedExcessChars));
-                changes += Collections.min(Arrays.asList(Math.min(nbExcessChars, nbRepetitionsRemaining), addedRepetitions));
+                changes += Math.min(nbFixedExcessChars, addedRepetitions);
                 return changes;
             } else {
-                int totalMissingTypes = countMissingTypes(s);
-                return nbExcessChars + Math.min(nbMissingTypes, totalMissingTypes);
+                int nbGlobalMissingTypes = countMissingTypes(s);
+                return nbExcessChars + Math.min(nbMissingTypes, nbGlobalMissingTypes);
             }
         } else {
             /** Is there missing characters? */
